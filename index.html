@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Internet Speed Test</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: "Poppins", sans-serif;
+      background: radial-gradient(circle at center, #0c0f1d, #000);
+      color: #fff;
+      text-align: center;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+    h2 {
+      font-size: 2.2em;
+      color: #ff4081;
+      margin-bottom: 10px;
+      letter-spacing: 1px;
+    }
+    h1 {
+      font-size: 2.5em;
+      color: #00e5ff;
+    }
+    p { color: #bbb; }
+    canvas {
+      margin-top: 30px;
+      width: 280px;
+      height: 280px;
+    }
+    #speed {
+      font-size: 3em;
+      margin-top: 20px;
+    }
+    #timer {
+      font-size: 1.2em;
+      margin-top: 5px;
+      color: #ccc;
+    }
+    button {
+      margin-top: 25px;
+      padding: 12px 25px;
+      background: #00bcd4;
+      border: none;
+      border-radius: 10px;
+      font-size: 1em;
+      cursor: pointer;
+      color: white;
+      transition: 0.3s;
+    }
+    button:hover {
+      background: #0097a7;
+    }
+  </style>
+</head>
+<body>
+  <h2>👋 HELLO</h2>
+  <h1>🚀 Internet Speed Test</h1>
+  <p>Test your Internet Speed in 10 seconds</p>
+
+  <canvas id="gauge" width="300" height="300"></canvas>
+  <div id="speed">-- Mbps</div>
+  <div id="timer">Time Left: 10s</div>
+  <button id="startBtn" onclick="startTest()">Start Test</button>
+
+  <script>
+    let ctx, totalBits = 0, countdown = 10, testRunning = false, startTime;
+
+    window.onload = () => {
+      const canvas = document.getElementById("gauge");
+      ctx = canvas.getContext("2d");
+      drawGauge(0);
+    };
+
+    function drawGauge(speed) {
+      const canvas = document.getElementById("gauge");
+      const ctx = canvas.getContext("2d");
+      ctx.clearRect(0, 0, 300, 300);
+
+      // Outer circle
+      ctx.beginPath();
+      ctx.arc(150, 150, 130, 0, 2 * Math.PI);
+      ctx.strokeStyle = "#333";
+      ctx.lineWidth = 10;
+      ctx.stroke();
+
+      // Speed arc
+      const endAngle = Math.min(speed / 100, 1) * 1.5 * Math.PI;
+      ctx.beginPath();
+      ctx.arc(150, 150, 130, Math.PI * 0.75, Math.PI * 0.75 + endAngle);
+      ctx.strokeStyle = "#00e5ff";
+      ctx.lineWidth = 12;
+      ctx.stroke();
+
+      // Needle
+      const needleAngle = Math.PI * 0.75 + endAngle;
+      const x = 150 + Math.cos(needleAngle) * 90;
+      const y = 150 + Math.sin(needleAngle) * 90;
+      ctx.beginPath();
+      ctx.moveTo(150, 150);
+      ctx.lineTo(x, y);
+      ctx.strokeStyle = "#ff4081";
+      ctx.lineWidth = 4;
+      ctx.stroke();
+
+      // Center dot
+      ctx.beginPath();
+      ctx.arc(150, 150, 6, 0, 2 * Math.PI);
+      ctx.fillStyle = "#fff";
+      ctx.fill();
+    }
+
+    async function downloadChunk() {
+      // Small file for testing speed
+      const fileUrl =
+        "https://upload.wikimedia.org/wikipedia/commons/3/3f/JPEG_example_flower.jpg";
+      const fileSizeBytes = 200000; // ~200 KB
+      try {
+        const start = performance.now();
+        const response = await fetch(fileUrl + "?cache=" + Math.random());
+        await response.blob();
+        const end = performance.now();
+        const duration = (end - start) / 1000;
+        const bits = fileSizeBytes * 8;
+        totalBits += bits;
+        return bits / duration; // bits per second
+      } catch {
+        return 0;
+      }
+    }
+
+    async function startTest() {
+      if (testRunning) return;
+      testRunning = true;
+      totalBits = 0;
+      countdown = 10;
+      document.getElementById("speed").innerText = "-- Mbps";
+      document.getElementById("startBtn").disabled = true;
+      startTime = performance.now();
+
+      // Countdown timer
+      const timerInterval = setInterval(() => {
+        countdown--;
+        document.getElementById("timer").innerText = `Time Left: ${countdown}s`;
+        if (countdown <= 0) clearInterval(timerInterval);
+      }, 1000);
+
+      // Test loop for 10 seconds
+      const endTime = startTime + 10000; // 10 seconds
+      while (performance.now() < endTime) {
+        const speedBps = await downloadChunk();
+        const speedMbps = (speedBps / 1024 / 1024).toFixed(2);
+        drawGauge(Math.min(speedMbps, 100));
+        document.getElementById("speed").innerText = `${speedMbps} Mbps`;
+      }
+
+      // Average calculation
+      const totalTime = (performance.now() - startTime) / 1000;
+      const avgSpeedMbps = (totalBits / totalTime / 1024 / 1024).toFixed(2);
+      drawGauge(Math.min(avgSpeedMbps, 100));
+      document.getElementById("speed").innerText = `${avgSpeedMbps} Mbps (avg)`;
+      document.getElementById("startBtn").disabled = false;
+      document.getElementById("timer").innerText = "Test Complete ✅";
+      testRunning = false;
+    }
+  </script>
+</body>
+</html>
