@@ -59,9 +59,4 @@ Quick learner and creative thinker
 
 Passionate about technology and innovation
 
-
-
----
-
-Would you like me to generate this same English resume as a downloadable PDF file (like the Bangla one)?
-Then you can upload it directly to GitHub or send it to employers.
+ 
