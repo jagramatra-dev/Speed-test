@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Message</title>
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #ff004f, #000000);
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    h1 {
+      color: white;
+      font-size: 4rem;
+      text-align: center;
+      animation: shake 0.3s infinite;
+      text-shadow: 0 0 20px rgba(255,255,255,0.6);
+    }
+
+    @keyframes shake {
+      0% { transform: translate(0); }
+      25% { transform: translate(5px, -5px); }
+      50% { transform: translate(-5px, 5px); }
+      75% { transform: translate(5px, 5px); }
+      100% { transform: translate(0); }
+    }
+  </style>
+</head>
+<body>
+  <h1>F*** YOU 😄</h1>
+</body>
+</html>
